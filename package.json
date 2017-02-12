@@ -1,0 +1,26 @@
+{
+  "name": "adana-format-istanbul",
+  "author": "Izaak Schroeder",
+  "main": "dist/istanbul.js",
+  "license": "CC0-1.0",
+  "repository": "adana-coverage/adana-format-istanbul",
+  "scripts": {
+    "prepublish": "./node_modules/.bin/babel -s inline -d dist src/",
+    "spec": "NODE_ENV=test ./node_modules/.bin/_mocha --compilers js:babel-core/register -r adana-dump -R spec test/spec",
+    "test": "npm run spec"
+  },
+  "dependencies": {
+    "adana-analyze": "^0.2.0",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "adana-cli": "^0.1.2",
+    "adana-dump": "^0.1.0",
+    "babel-cli": "^6.22.2",
+    "babel-plugin-transform-adana": "^0.5.9",
+    "babel-plugin-transform-object-rest-spread": "^6.22.0",
+    "babel-preset-es2015": "^6.22.0",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  }
+}
