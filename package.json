@@ -2,7 +2,7 @@
   "name": "adana-format-istanbul",
   "author": "Izaak Schroeder",
   "main": "dist/istanbul.js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "CC0-1.0",
   "repository": "adana-coverage/adana-format-istanbul",
   "scripts": {
