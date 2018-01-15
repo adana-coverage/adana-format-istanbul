@@ -19,16 +19,6 @@ export const MAGIC_VALUE = createHash(SHA)
   .update('istanbul-lib-instrument' + '@' + 1)
   .digest('hex');
 
-const count = flow(
-  groupBy(({group, name, id}) => group || name || id),
-  mapValues((entries) => {
-    if (entries.length === 1) {
-      return entries[0].count;
-    }
-    return map('count', entries);
-  })
-);
-
 const gel = flow(
   lines,
   map(({count, line}) => ([line, count])),
@@ -44,36 +34,35 @@ const convert = flow(
       'branch',
       'statement',
     ]);
+    const functions = keyBy('name', t.function);
+    const statements = keyBy('id', t.statement);
+    const branches = groupBy('group', t.branch);
+
     return [file, {
       [MAGIC_KEY]: MAGIC_VALUE,
       hash: createHash('sha1').update(source).digest('hex'),
       path: file,
-      s: count(t.statement),
-      b: count(t.branch),
-      f: count(t.function),
+      s: mapValues('count', statements),
+      b: mapValues((branches) => {
+        return map('count', branches);
+      }, branches),
+      f: mapValues('count', functions),
       l: gel(locations),
-      fnMap: flow(
-        keyBy('name'),
-        mapValues(({loc, name}) => ({
-            // TODO: Add `decl` info
-            name,
-            loc, 
-        }))
-      )(t.function),
-      statementMap: flow(
-        map(({id, loc}) => [id, loc]),
-        fromPairs
-      )(t.statement),
-      branchMap: flow(
-        groupBy('group'),
-        mapValues((entries) => ({
-          line: entries[0].loc.start.line,
-          type: find((x) => includes(x, [
-            'exception', 'if', 'switch', 'logic'
-          ]), entries[0].tags),
-          locations: map('loc', entries),
-        }))
-      )(t.branch),
+      fnMap: mapValues(({loc, name}) => ({
+          // TODO: Add `decl` info
+          name,
+          loc,
+      }), functions),
+      statementMap: mapValues(({loc}) => {
+        return {loc};
+      }, statements),
+      branchMap: mapValues((entries) => ({
+        line: entries[0].loc.start.line,
+        type: find((x) => includes(x, [
+          'exception', 'if', 'switch', 'logic'
+        ]), entries[0].tags),
+        locations: map('loc', entries),
+      }), branches),
     }];
   }),
   fromPairs,
